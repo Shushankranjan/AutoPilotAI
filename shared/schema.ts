@@ -74,6 +74,7 @@ export const planOutputSchema = z.object({
     task: z.string(),
     description: z.string().optional(),
     duration: z.number().optional(),
+    completed: z.boolean().optional().default(false),
   })),
   motivationalTip: z.string(),
 });

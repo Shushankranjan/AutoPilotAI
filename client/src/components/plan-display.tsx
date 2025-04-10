@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PlanOutput } from "@shared/schema";
-import { Check, Copy, Download, RefreshCw, Cpu, AlertTriangle, Clock, Info } from "lucide-react";
+import { Check, Copy, Download, RefreshCw, Cpu, AlertTriangle, Clock, Info, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useMutation } from "@tanstack/react-query";
@@ -32,7 +32,13 @@ interface PlanDisplayProps {
 
 export function PlanDisplay({ plan, inputData, onRegenerate, aiMetadata }: PlanDisplayProps) {
   const [copied, setCopied] = useState(false);
+  const [currentPlan, setCurrentPlan] = useState(plan);
   const { toast } = useToast();
+  
+  // Update the current plan when the prop changes
+  useEffect(() => {
+    setCurrentPlan(plan);
+  }, [plan]);
   
   const savePlanMutation = useMutation({
     mutationFn: savePlan,
@@ -146,7 +152,7 @@ Motivational Tip: ${plan.motivationalTip}
         
         {/* Timeline-style plan */}
         <div className="space-y-3">
-          {plan.timeline.map((task, index) => {
+          {currentPlan.timeline.map((task, index) => {
             // Calculate duration in minutes for display
             const duration = task.duration || 30; // Default to 30 minutes if not provided
             
@@ -158,18 +164,41 @@ Motivational Tip: ${plan.motivationalTip}
               durationColor = "bg-purple-100 text-purple-700"; 
             }
             
+            // Handle task completion
+            const handleTaskToggle = () => {
+              const updatedPlan = {...currentPlan};
+              updatedPlan.timeline[index].completed = !task.completed;
+              setCurrentPlan(updatedPlan);
+            };
+            
             return (
               <div 
                 key={index}
-                className="p-4 rounded-lg border border-gray-200 bg-white shadow-sm hover:shadow-md transition-all"
+                className={`p-4 rounded-lg border ${task.completed 
+                  ? "border-green-200 bg-green-50" 
+                  : "border-gray-200 bg-white"} shadow-sm hover:shadow-md transition-all`}
               >
                 <div className="flex justify-between items-start">
-                  <span className="text-sm font-semibold text-blue-600">{task.startTime}–{task.endTime}</span>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={handleTaskToggle} 
+                      className={`rounded-full w-5 h-5 flex items-center justify-center ${
+                        task.completed ? "bg-green-500 text-white" : "border border-gray-300"
+                      }`}
+                    >
+                      {task.completed && <Check className="h-3 w-3" />}
+                    </button>
+                    <span className="text-sm font-semibold text-blue-600">{task.startTime}–{task.endTime}</span>
+                  </div>
                   <span className={`text-xs py-0.5 px-2 rounded-full ${durationColor}`}>{duration} min</span>
                 </div>
-                <h3 className="font-medium text-gray-800 mt-1">{task.task}</h3>
+                <h3 className={`font-medium ${task.completed ? "text-gray-500 line-through" : "text-gray-800"} mt-1 ml-7`}>
+                  {task.task}
+                </h3>
                 {task.description && (
-                  <p className="text-sm text-gray-500 mt-1">{task.description}</p>
+                  <p className={`text-sm ${task.completed ? "text-gray-400" : "text-gray-500"} mt-1 ml-7`}>
+                    {task.description}
+                  </p>
                 )}
               </div>
             );
