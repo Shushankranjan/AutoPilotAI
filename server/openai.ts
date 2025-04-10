@@ -103,7 +103,8 @@ export function generateSmartFallbackPlan(input: PlanGenerationInput): z.infer<t
       endTime: `${String(endHour).padStart(2, '0')}:${String(endMinuteRemainder).padStart(2, '0')}`,
       task: task,
       description: `Focus on completing ${task}`,
-      duration: taskDuration
+      duration: taskDuration,
+      completed: false
     });
     
     // Add a break if not the last task and not exceeding available time
@@ -118,7 +119,8 @@ export function generateSmartFallbackPlan(input: PlanGenerationInput): z.infer<t
         endTime: `${String(breakEndHour).padStart(2, '0')}:${String(breakEndMinuteRemainder).padStart(2, '0')}`,
         task: "Quick Break",
         description: "Rest and recharge",
-        duration: 15
+        duration: 15,
+        completed: false
       });
       
       currentHour = breakEndHour + breakEndMinuteRemainder / 60;
@@ -144,7 +146,8 @@ export function generateSmartFallbackPlan(input: PlanGenerationInput): z.infer<t
       endTime: `${String(endHour).padStart(2, '0')}:${String(endMinuteRemainder).padStart(2, '0')}`,
       task: "Flexible Work Session",
       description: "Work on any pending tasks or take time to relax",
-      duration: remainingMinutes
+      duration: remainingMinutes,
+      completed: false
     });
   }
   
@@ -187,7 +190,8 @@ Provide your response as a JSON object with the following structure:
       "endTime": "End time in HH:MM format",
       "task": "Task name",
       "description": "Brief description of the task",
-      "duration": Duration in minutes
+      "duration": Duration in minutes,
+      "completed": false
     }
   ],
   "motivationalTip": "A short motivational tip or advice"
