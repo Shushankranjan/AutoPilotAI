@@ -30,7 +30,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // If response is too fast, it's likely using the fallback
         if (responseTime < 500 && hasValidApiKey) {
           usedAI = false;
-          fallbackReason = 'API error or timeout';
+          
+          // Check if a fallback reason was set in the global variable
+          if ((global as any).aiPlanFallbackReason) {
+            fallbackReason = (global as any).aiPlanFallbackReason;
+            // Reset the global variable
+            (global as any).aiPlanFallbackReason = null;
+          } else {
+            fallbackReason = 'API error or timeout';
+          }
         }
         
         // Return the plan along with AI usage information

@@ -231,14 +231,23 @@ The timeline should be realistic and well-balanced, with proper work-break inter
     // Check for specific OpenAI errors
     const errorMessage = error?.message || '';
     const errorType = error?.type || '';
+    let fallbackReason = 'General OpenAI API error';
     
     if (errorType === 'insufficient_quota' || errorMessage.includes('quota') || error?.status === 429) {
+      fallbackReason = 'API rate limit exceeded';
       console.log("OpenAI API quota exceeded. Using smart fallback plan generation.");
     } else if (error?.status === 401 || errorMessage.includes('invalid api key')) {
+      fallbackReason = 'Invalid API key';
       console.log("Invalid OpenAI API key. Using smart fallback plan generation.");
+    } else if (errorMessage.includes('timeout') || error?.status === 408) {
+      fallbackReason = 'API request timeout';
+      console.log("OpenAI API timeout. Using smart fallback plan generation.");
     } else {
       console.log("OpenAI API error. Using smart fallback plan generation.");
     }
+    
+    // Set a global variable to indicate fallback was used
+    (global as any).aiPlanFallbackReason = fallbackReason;
     
     // Use our smart fallback generator
     return generateSmartFallbackPlan(input);
