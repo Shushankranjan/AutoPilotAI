@@ -1,11 +1,17 @@
 import { useState } from "react";
 import { PlanOutput } from "@shared/schema";
-import { Check, Copy, Download, RefreshCw, Cpu, AlertTriangle, Clock } from "lucide-react";
+import { Check, Copy, Download, RefreshCw, Cpu, AlertTriangle, Clock, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useMutation } from "@tanstack/react-query";
 import { savePlan } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface PlanDisplayProps {
   plan: PlanOutput;
@@ -86,29 +92,49 @@ Motivational Tip: ${plan.motivationalTip}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-gray-800">🗓️ Your Smart Schedule</h2>
         
-        {/* AI Status Badge */}
+        {/* AI Status Badge with Tooltip */}
         {aiMetadata && (
-          <Badge 
-            variant={aiMetadata.usedAI ? "default" : "outline"}
-            className={`flex items-center gap-1 ${
-              aiMetadata.usedAI 
-                ? "bg-gradient-to-r from-blue-500 to-purple-500" 
-                : "border-amber-500 text-amber-500"
-            }`}
-          >
-            {aiMetadata.usedAI ? (
-              <>
-                <Cpu className="h-3 w-3" />
-                <span>AI Generated</span>
-                <span className="text-xs opacity-80">({aiMetadata.responseTime}s)</span>
-              </>
-            ) : (
-              <>
-                <AlertTriangle className="h-3 w-3" />
-                <span>Smart Fallback</span>
-              </>
-            )}
-          </Badge>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge 
+                  variant={aiMetadata.usedAI ? "default" : "outline"}
+                  className={`flex items-center gap-1 cursor-help ${
+                    aiMetadata.usedAI 
+                      ? "bg-gradient-to-r from-blue-500 to-purple-500" 
+                      : "border-amber-500 text-amber-500"
+                  }`}
+                >
+                  {aiMetadata.usedAI ? (
+                    <>
+                      <Cpu className="h-3 w-3" />
+                      <span>AI Generated</span>
+                      <span className="text-xs opacity-80">({aiMetadata.responseTime})</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle className="h-3 w-3" />
+                      <span>Smart Fallback</span>
+                      <Info className="h-3 w-3 ml-1" />
+                    </>
+                  )}
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                {aiMetadata.usedAI ? (
+                  <p className="text-xs">
+                    This plan was generated using OpenAI GPT-4o model in {aiMetadata.responseTime}.
+                    AI-generated plans are customized based on your mood, energy level, and priorities.
+                  </p>
+                ) : (
+                  <p className="text-xs">
+                    Using smart local generation due to: {aiMetadata.fallbackReason || "API unavailable"}.
+                    AutoPilot still creates quality plans even when AI services aren't accessible.
+                  </p>
+                )}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
       </div>
       

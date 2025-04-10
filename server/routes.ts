@@ -60,13 +60,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const { generateSmartFallbackPlan } = require('./openai');
         const fallbackPlan = generateSmartFallbackPlan(planInput);
         
+        // Check if a fallback reason was set in the global variable
+        let fallbackErrorReason = 'Error in AI processing';
+        if ((global as any).aiPlanFallbackReason) {
+          fallbackErrorReason = (global as any).aiPlanFallbackReason;
+          // Reset the global variable
+          (global as any).aiPlanFallbackReason = null;
+        }
+        
         res.json({
           success: true,
           plan: fallbackPlan,
           meta: {
             usedAI: false,
             responseTime: `${Date.now() - startTime}ms`,
-            fallbackReason: 'Error in AI processing'
+            fallbackReason: fallbackErrorReason
           }
         });
       }
