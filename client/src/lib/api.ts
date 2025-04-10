@@ -1,7 +1,17 @@
 import { apiRequest } from "./queryClient";
 import { PlanGenerationInput, PlanOutput } from "@shared/schema";
 
-export async function generatePlan(input: PlanGenerationInput): Promise<{ plan: PlanOutput }> {
+export type PlanGenerationResponse = {
+  plan: PlanOutput;
+  meta?: {
+    usedAI: boolean;
+    responseTime: string;
+    fallbackReason: string;
+  };
+  success: boolean;
+}
+
+export async function generatePlan(input: PlanGenerationInput): Promise<PlanGenerationResponse> {
   const response = await apiRequest("POST", "/api/plans/generate", input);
   return response.json();
 }

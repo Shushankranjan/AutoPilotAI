@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, Plus, X } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { PlanGenerationInput, planGenerationSchema } from "@shared/schema";
-import { generatePlan } from "@/lib/api";
+import { generatePlan, type PlanGenerationResponse } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -40,7 +40,11 @@ const goals = [
 ];
 
 interface PlanGeneratorFormProps {
-  onPlanGenerated: (plan: any) => void;
+  onPlanGenerated: (plan: any, meta?: {
+    usedAI: boolean;
+    responseTime: string;
+    fallbackReason: string;
+  }) => void;
 }
 
 export function PlanGeneratorForm({ onPlanGenerated }: PlanGeneratorFormProps) {

@@ -11,12 +11,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/plans/generate", async (req: Request, res: Response) => {
     try {
       const planInput = planGenerationSchema.parse(req.body);
-      const generatedPlan = await generateAIPlan(planInput);
       
-      res.json({
-        success: true,
-        plan: generatedPlan
-      });
+      // Mark the start time to calculate response time
+      const startTime = Date.now();
+      
+      // Check if we have a valid API key to inform the client
+      const hasValidApiKey = process.env.OPENAI_API_KEY && 
+                            process.env.OPENAI_API_KEY.startsWith('sk-') && 
+                            process.env.OPENAI_API_KEY.length > 20;
+      
+      let usedAI = true;
+      let fallbackReason = '';
+      
+      try {
+        const generatedPlan = await generateAIPlan(planInput);
+        const responseTime = Date.now() - startTime;
+        
+        // If response is too fast, it's likely using the fallback
+        if (responseTime < 500 && hasValidApiKey) {
+          usedAI = false;
+          fallbackReason = 'API error or timeout';
+        }
+        
+        // Return the plan along with AI usage information
+        res.json({
+          success: true,
+          plan: generatedPlan,
+          meta: {
+            usedAI,
+            responseTime: `${responseTime}ms`,
+            fallbackReason: usedAI ? '' : (fallbackReason || 'Used smart generation')
+          }
+        });
+      } catch (aiError) {
+        // This shouldn't happen since generateAIPlan has its own error handling,
+        // but just in case, we'll handle it here
+        console.error("Unexpected AI generation error:", aiError);
+        
+        // Import the fallback generator to use directly
+        const { generateSmartFallbackPlan } = require('./openai');
+        const fallbackPlan = generateSmartFallbackPlan(planInput);
+        
+        res.json({
+          success: true,
+          plan: fallbackPlan,
+          meta: {
+            usedAI: false,
+            responseTime: `${Date.now() - startTime}ms`,
+            fallbackReason: 'Error in AI processing'
+          }
+        });
+      }
     } catch (error) {
       if (error instanceof z.ZodError) {
         res.status(400).json({ 
