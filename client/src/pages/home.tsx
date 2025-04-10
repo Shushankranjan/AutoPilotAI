@@ -44,6 +44,11 @@ const defaultPlan: PlanOutput = {
 
 export default function Home() {
   const [plan, setPlan] = useState<PlanOutput>(defaultPlan);
+  const [aiMetadata, setAiMetadata] = useState<{
+    usedAI: boolean;
+    responseTime: string;
+    fallbackReason: string;
+  } | null>(null);
   const [inputData, setInputData] = useState({
     mood: "motivated",
     timeAvailable: "6",
@@ -52,8 +57,18 @@ export default function Home() {
     personalGoal: "gate"
   });
 
-  const handlePlanGenerated = (generatedPlan: PlanOutput) => {
+  const handlePlanGenerated = (
+    generatedPlan: PlanOutput, 
+    meta?: {
+      usedAI: boolean;
+      responseTime: string;
+      fallbackReason: string;
+    }
+  ) => {
     setPlan(generatedPlan);
+    if (meta) {
+      setAiMetadata(meta);
+    }
   };
 
   const handleFormSubmit = (data: any) => {
@@ -79,6 +94,7 @@ export default function Home() {
             <PlanDisplay 
               plan={plan} 
               inputData={inputData}
+              aiMetadata={aiMetadata}
               onRegenerate={() => {
                 // Just for demo, in real app would call API again
                 const updatedPlan = {...plan};

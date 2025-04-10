@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { PlanOutput } from "@shared/schema";
-import { Check, Copy, Download, RefreshCw } from "lucide-react";
+import { Check, Copy, Download, RefreshCw, Cpu, AlertTriangle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useMutation } from "@tanstack/react-query";
 import { savePlan } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -16,9 +17,14 @@ interface PlanDisplayProps {
     personalGoal?: string;
   };
   onRegenerate: () => void;
+  aiMetadata?: {
+    usedAI: boolean;
+    responseTime: string;
+    fallbackReason: string;
+  } | null;
 }
 
-export function PlanDisplay({ plan, inputData, onRegenerate }: PlanDisplayProps) {
+export function PlanDisplay({ plan, inputData, onRegenerate, aiMetadata }: PlanDisplayProps) {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
   
@@ -77,7 +83,34 @@ Motivational Tip: ${plan.motivationalTip}
 
   return (
     <div className="bg-white/70 backdrop-blur-md rounded-xl p-6 shadow-md h-full relative">
-      <h2 className="text-xl font-semibold text-gray-800 mb-6">🗓️ Your Smart Schedule</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-semibold text-gray-800">🗓️ Your Smart Schedule</h2>
+        
+        {/* AI Status Badge */}
+        {aiMetadata && (
+          <Badge 
+            variant={aiMetadata.usedAI ? "default" : "outline"}
+            className={`flex items-center gap-1 ${
+              aiMetadata.usedAI 
+                ? "bg-gradient-to-r from-blue-500 to-purple-500" 
+                : "border-amber-500 text-amber-500"
+            }`}
+          >
+            {aiMetadata.usedAI ? (
+              <>
+                <Cpu className="h-3 w-3" />
+                <span>AI Generated</span>
+                <span className="text-xs opacity-80">({aiMetadata.responseTime}s)</span>
+              </>
+            ) : (
+              <>
+                <AlertTriangle className="h-3 w-3" />
+                <span>Smart Fallback</span>
+              </>
+            )}
+          </Badge>
+        )}
+      </div>
       
       <div className="space-y-6">
         {/* Personalized greeting */}

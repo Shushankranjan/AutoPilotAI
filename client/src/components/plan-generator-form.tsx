@@ -68,7 +68,19 @@ export function PlanGeneratorForm({ onPlanGenerated }: PlanGeneratorFormProps) {
   const generatePlanMutation = useMutation({
     mutationFn: generatePlan,
     onSuccess: (data) => {
-      onPlanGenerated(data.plan);
+      // Pass both the plan and the AI metadata
+      onPlanGenerated(data.plan, data.meta);
+      
+      // Show a toast notification if AI fallback was used
+      if (data.meta && !data.meta.usedAI) {
+        toast({
+          title: "Using intelligent fallback",
+          description: data.meta.fallbackReason ? 
+            `Reason: ${data.meta.fallbackReason}` : 
+            "Using locally generated plan instead of AI",
+          variant: "default"
+        });
+      }
     },
     onError: (error) => {
       toast({
