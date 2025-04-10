@@ -1,0 +1,86 @@
+Design a clean, modern, and calming dashboard-style user interface for a web app called AutoPilot AI – Your Smart Daily Planner. The primary goal of this UI is to help users generate AI-powered daily task schedules based on their mood, available time, and goals. The app should feel supportive, intelligent, and slightly personal — like a productivity buddy, not just a cold planner.
+
+🔷 Page Layout and Sections
+1. Top Navbar
+Left: Logo with subtle rocket icon + “AutoPilot AI”
+
+Center (optional): Daily motivational quote or greeting: “Let’s conquer the day, Shushank 🚀”
+
+Right: Profile avatar, Settings (⚙️), and Upgrade button (shiny "Pro" badge)
+
+2. Main Dashboard Layout – Split into Two Columns
+🔹 Left Panel – Input Section (AI Generator Prompt Area)
+Title: “🎯 Generate Your Daily Plan”
+
+Form Fields:
+
+Mood Selector: Emoji + Label (e.g., 😴 Tired, 🔥 Motivated, 😵‍💫 Overwhelmed, 🧘 Calm)
+
+Time Available: Slider or dropdown (e.g., 3 hours, 6 hours, Full Day)
+
+Energy Level: Low, Medium, High (icons)
+
+Priority Tasks (Text field with tag-like chips)
+
+Personal Goal (Optional — dropdown or input, e.g., “Crack GATE 2025”, “Finish Portfolio”)
+
+CTA Button: “⚡ Generate Smart Plan” (with loading animation when clicked)
+
+🔹 Right Panel – AI Output Area
+Title: “🗓️ Your Smart Schedule”
+
+When output is generated, show:
+
+Personalized greeting (“Hey, I know you're feeling a bit tired today, but we got this 💪”)
+
+Timeline-style plan:
+
+makefile
+Copy
+Edit
+9:00–9:45 – DBMS Lecture (YouTube + Notes)
+10:00–10:30 – Coffee + Light Reading
+11:00–11:30 – Quick Workout
+Motivational Tip: “Small steps today = Big wins tomorrow.”
+
+Optional: End-of-day reflection prompt
+
+Copy Button to save plan to clipboard
+
+Save Plan (available to Pro users only)
+
+3. Additional Features Section (Below Main Panel)
+Progress Tracker (circular progress bar for day completion)
+
+“I Feel Lazy” Button – When clicked, regenerate easier version of today’s plan
+
+Motivation Buddy Toggle – Daily affirmations, support messages, or focus tips
+
+Notes Section – Users can click each task and jot quick notes (auto-save)
+
+4. Sidebar or Bottom Navigation (Mobile-Friendly)
+🏠 Home
+
+📅 My Plans
+
+🧠 AI Goals
+
+⚙️ Settings
+
+⭐ Upgrade
+
+🎨 Design Style & Vibe
+Soft pastel colors: Light blues, greens, soft pinks — calming and focused
+
+Rounded UI elements, light shadows, glassmorphism effect for Pro features
+
+Typography: Clean, modern, legible fonts (e.g., Inter, Manrope)
+
+Micro-interactions: Subtle animations when switching moods or loading plans
+
+🛒 Pricing Popup (Triggered by “Upgrade” Button)
+Modal with 3 tiers: Free, Basic (₹99/mo), Pro (₹249/mo)
+
+Feature comparison table
+
+“Start Free Trial” CTA with credit card-free onboarding
