@@ -6,6 +6,8 @@ import {
   type Plan, 
   type InsertPlan 
 } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -78,4 +80,78 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async createPlan(insertPlan: InsertPlan): Promise<Plan> {
+    const [plan] = await db
+      .insert(plans)
+      .values(insertPlan)
+      .returning();
+    return plan;
+  }
+
+  async getPlansByUserId(userId: number): Promise<Plan[]> {
+    return await db
+      .select()
+      .from(plans)
+      .where(eq(plans.userId, userId))
+      .orderBy(plans.createdAt, { direction: 'desc' });
+  }
+
+  async getPlan(id: number): Promise<Plan | undefined> {
+    const [plan] = await db.select().from(plans).where(eq(plans.id, id));
+    return plan || undefined;
+  }
+}
+
+// Initialize the database and add a default user
+async function initializeDatabase() {
+  const dbStorage = new DatabaseStorage();
+  
+  // Check if default user exists
+  const existingUser = await dbStorage.getUserByUsername("demo");
+  
+  if (!existingUser) {
+    // Add a default user
+    await dbStorage.createUser({
+      username: "demo",
+      password: "password123",
+      name: "Shushank",
+      email: "demo@example.com",
+      avatar: ""
+    });
+    console.log("Default user created");
+  }
+  
+  return dbStorage;
+}
+
+// Export the storage instance
+export const storage = new DatabaseStorage();
+
+// Initialize the database asynchronously
+(async () => {
+  try {
+    await initializeDatabase();
+    console.log("Database initialized successfully");
+  } catch (error) {
+    console.error("Failed to initialize database:", error);
+  }
+})();

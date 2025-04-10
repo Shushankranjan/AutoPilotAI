@@ -1,6 +1,7 @@
 import { pgTable, text, serial, integer, boolean, jsonb, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { relations } from "drizzle-orm";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -22,6 +23,11 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
+// Define relationship between users and plans
+export const usersRelations = relations(users, ({ many }) => ({
+  plans: many(plans)
+}));
+
 export const plans = pgTable("plans", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
@@ -41,6 +47,14 @@ export const insertPlanSchema = createInsertSchema(plans).omit({
 
 export type InsertPlan = z.infer<typeof insertPlanSchema>;
 export type Plan = typeof plans.$inferSelect;
+
+// Define relationship between plans and users
+export const plansRelations = relations(plans, ({ one }) => ({
+  user: one(users, {
+    fields: [plans.userId],
+    references: [users.id]
+  })
+}));
 
 export const planGenerationSchema = z.object({
   mood: z.string(),
